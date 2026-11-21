@@ -21,9 +21,46 @@ class PreviewProvider: QLPreviewProvider, QLPreviewingController {
         let fileURL = request.fileURL
         logger.info("Received file URL: \(fileURL.path, privacy: .public)")
 
-        guard let image = try? ThumbnailExtractor.extractThumbnail(from: fileURL) else {
+        let image: CGImage
+        do {
+            image = try ThumbnailExtractor.extractThumbnail(from: fileURL)
+        } catch {
+            let fileExtension = fileURL.pathExtension.lowercased()
+            guard fileExtension == "gcode" || fileExtension == "gco" else {
+                throw error
+            }
+
+            let didStartAccessing = fileURL.startAccessingSecurityScopedResource()
+            defer {
+                if didStartAccessing {
+                    fileURL.stopAccessingSecurityScopedResource()
+                }
+            }
+
+            let fileData = try Data(contentsOf: fileURL)
+            let text = String(data: fileData, encoding: .utf8)
+                ?? String(data: fileData, encoding: .isoLatin1)
+                ?? ""
+            let toolpathImage = GCodeToolpath.parse(text).makeImage()
+            if let toolpathImage {
+                let imageSize = CGSize(width: toolpathImage.width, height: toolpathImage.height)
+                return QLPreviewReply(contextSize: imageSize, isBitmap: true) { context, _ in
+                    context.draw(toolpathImage, in: CGRect(origin: .zero, size: imageSize))
+                }
+            }
+
+            let previewData = Data(text.utf8)
+            return QLPreviewReply(
+                dataOfContentType: .plainText,
+                contentSize: CGSize(width: 800, height: 1000)
+            ) { _ in
+                previewData
+            }
+        }
+
+        if image.width <= 0 || image.height <= 0 {
             let errorMessage =
-                "Failed to extract thumbnail from slicer file: \(fileURL.lastPathComponent)"
+                "Invalid preview image for slicer file: \(fileURL.lastPathComponent)"
             logger.error("\(errorMessage, privacy: .public)")
             throw NSError(
                 domain: Bundle(for: PreviewProvider.self).bundleIdentifier

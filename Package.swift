@@ -20,7 +20,7 @@ let package = Package(
             name: "SlicerCompanionLib",
             dependencies: [],
             path: "Shared",
-            sources: ["ThumbnailExtractor.swift"]
+            sources: ["ThumbnailExtractor.swift", "GCodeToolpath.swift"]
         ),
         .testTarget(
             name: "SlicerCompanionTests",

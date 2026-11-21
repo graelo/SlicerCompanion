@@ -170,6 +170,46 @@ final class ThreeMFParserTests: XCTestCase {
 
 final class GCodeParserTests: XCTestCase {
 
+    func testToolpathParsesLayerMarkersAndExtrusionMoves() {
+        let text = """
+        ;LAYER:0
+        G21
+        G90
+        M82
+        G1 X10 Y10 Z0.2
+        G1 X20 Y10 E1
+        ;LAYER:1
+        G1 Z0.4
+        G1 X20 Y20 E2
+        """
+
+        let toolpath = GCodeToolpath.parse(text)
+
+        XCTAssertEqual(toolpath.layerCount, 2)
+        XCTAssertEqual(toolpath.moves.filter { $0.layer == 0 && $0.extrudes }.count, 1)
+        XCTAssertEqual(toolpath.moves.filter { $0.layer == 1 && $0.extrudes }.count, 1)
+        XCTAssertNotNil(toolpath.makeImage(layer: 1, width: 320, height: 240))
+    }
+
+    func testToolpathParsesRelativeMovesAndArcs() {
+        let text = """
+        G21
+        G90
+        M83
+        G1 X10 Y10
+        G91
+        G3 X10 Y0 I5 J0 E1
+        """
+
+        let toolpath = GCodeToolpath.parse(text)
+
+        XCTAssertGreaterThan(toolpath.moves.count, 10)
+        XCTAssertFalse(toolpath.moves[0].extrudes)
+        XCTAssertTrue(toolpath.moves.dropFirst().allSatisfy(\.extrudes))
+        XCTAssertEqual(toolpath.moves.last?.end.x ?? 0, 20, accuracy: 0.001)
+        XCTAssertEqual(toolpath.moves.last?.end.y ?? 0, 10, accuracy: 0.001)
+    }
+
     func testExtractThumbnail_ValidFile() throws {
         guard let url = Bundle.module.url(
             forResource: "SO101 leader grip",
