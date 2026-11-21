@@ -13,6 +13,7 @@
 		00DD5A0A2DF5B6EA0093C6C5 /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00DD5A092DF5B6EA0093C6C5 /* Quartz.framework */; };
 		00DD5A172DF5B6EA0093C6C5 /* Preview Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 00DD5A072DF5B6EA0093C6C5 /* Preview Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		00DD5A1D2DF5B6EA0093C6C5 /* GCodeToolpath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00DD5A1E2DF5B6EA0093C6C5 /* GCodeToolpath.swift */; };
+		00DD5A212DF5B6EA0093C6C5 /* SceneKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00DD5A222DF5B6EA0093C6C5 /* SceneKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -54,6 +55,7 @@
 		00DD5A072DF5B6EA0093C6C5 /* Preview Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Preview Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		00DD5A092DF5B6EA0093C6C5 /* Quartz.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quartz.framework; path = System/Library/Frameworks/Quartz.framework; sourceTree = SDKROOT; };
 		00DD5A1E2DF5B6EA0093C6C5 /* GCodeToolpath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shared/GCodeToolpath.swift; sourceTree = "<group>"; };
+		00DD5A222DF5B6EA0093C6C5 /* SceneKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SceneKit.framework; path = System/Library/Frameworks/SceneKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -160,6 +162,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				00DD5A0A2DF5B6EA0093C6C5 /* Quartz.framework in Frameworks */,
+				00DD5A212DF5B6EA0093C6C5 /* SceneKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

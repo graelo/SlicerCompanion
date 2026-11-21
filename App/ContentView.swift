@@ -27,6 +27,10 @@ struct ContentView: View {
     @State private var toolpath: GCodeToolpath?
     @State private var previewImage: CGImage?
     @State private var selectedLayer = 0.0
+    @State private var zoomScale = 1.0
+    @State private var rotation = Angle.zero
+    @GestureState private var magnificationDelta = 1.0
+    @GestureState private var rotationDelta = Angle.zero
 
     var body: some View {
         VStack(spacing: 0) {
@@ -34,6 +38,14 @@ struct ContentView: View {
                 Label("Toolpath", systemImage: "point.topleft.down.curvedto.point.bottomright.up")
                     .font(.headline)
                 Spacer()
+                Button {
+                    zoomScale = 1
+                    rotation = .zero
+                } label: {
+                    Image(systemName: "arrow.counterclockwise")
+                }
+                .help("Reset view")
+                .disabled(zoomScale == 1 && rotation == .zero)
                 if let toolpath {
                     Text("Layer \(Int(selectedLayer) + 1) of \(toolpath.layerCount)")
                         .font(.callout.monospacedDigit())
@@ -51,6 +63,27 @@ struct ContentView: View {
                         .resizable()
                         .interpolation(.high)
                         .aspectRatio(contentMode: .fit)
+                        .scaleEffect(zoomScale * magnificationDelta)
+                        .rotationEffect(rotation + rotationDelta)
+                        .contentShape(Rectangle())
+                        .gesture(
+                            MagnificationGesture()
+                                .updating($magnificationDelta) { value, state, _ in
+                                    state = value
+                                }
+                                .onEnded { value in
+                                    zoomScale = min(max(zoomScale * value, 0.25), 8)
+                                }
+                        )
+                        .simultaneousGesture(
+                            RotationGesture()
+                                .updating($rotationDelta) { value, state, _ in
+                                    state = value
+                                }
+                                .onEnded { value in
+                                    rotation = rotation + value
+                                }
+                        )
                         .padding(24)
                 } else if toolpath != nil {
                     ContentUnavailableView("No toolpath found", systemImage: "point.topleft.down.curvedto.point.bottomright.up")

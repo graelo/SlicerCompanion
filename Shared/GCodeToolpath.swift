@@ -4,6 +4,7 @@ import Foundation
 struct ToolpathPoint: Sendable {
     let x: Double
     let y: Double
+    let z: Double
 }
 
 struct ToolpathMove: Sendable {
@@ -86,7 +87,7 @@ struct GCodeToolpath: Sendable {
 
             guard let gCode, [0, 1, 2, 3].contains(gCode) else { continue }
 
-            let start = ToolpathPoint(x: x, y: y)
+            let start = ToolpathPoint(x: x, y: y, z: z)
             let startZ = z
             let startE = e
             if let value = parameters["X"] {
@@ -111,14 +112,14 @@ struct GCodeToolpath: Sendable {
             }
             skipNextAutomaticLayer = false
 
-            let end = ToolpathPoint(x: x, y: y)
+            let end = ToolpathPoint(x: x, y: y, z: z)
             let extrudes = e - startE > 0.00001
             if gCode == 2 || gCode == 3,
                let i = parameters["I"], let j = parameters["J"] {
                 let arcMoves = Self.arcMoves(
                     start: start,
                     end: end,
-                    center: ToolpathPoint(x: start.x + i * unitScale, y: start.y + j * unitScale),
+                    center: ToolpathPoint(x: start.x + i * unitScale, y: start.y + j * unitScale, z: start.z),
                     clockwise: gCode == 2,
                     layer: currentLayer,
                     extrudes: extrudes,
@@ -224,7 +225,8 @@ struct GCodeToolpath: Sendable {
             let angle = startAngle + sweep * Double(index) / Double(count)
             let next = index == count ? end : ToolpathPoint(
                 x: center.x + radius * cos(angle),
-                y: center.y + radius * sin(angle)
+                y: center.y + radius * sin(angle),
+                z: start.z + (end.z - start.z) * Double(index) / Double(count)
             )
             result.append(ToolpathMove(start: previous, end: next, layer: layer, extrudes: extrudes, tool: tool))
             previous = next
